@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import axios from 'axios'
-import TableReact from '../../UI/Table/TableReact';
 import Header from '../../UI/Header/Header';
 import Content from '../../../hoc/Content/Content';
 import Aux from '../../../hoc/Aux';
@@ -10,6 +9,7 @@ import TableHorizontal from '../../UI/Table/TableHorizontal';
 import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
+import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 
 function GeneLandingPage() {
 
@@ -25,16 +25,16 @@ function GeneLandingPage() {
 		let fetchData = async () => {
 
 			// let res1 = await axios(`/api/getGenes/${id}`)
-			let res1 = await axios.post('/v2/api/query/19', {"gene_id": parseInt(id)})
+			let res1 = await axios.post('/v2/api/query/19', { "gene_id": parseInt(id) })
 			setStats(res1.data)
 
 			// let res2 = await axios(`/api/getTopGeneExperiments/${id}`)
-			let res2 = await axios.post('/v2/api/query/21', {"gene_id": parseInt(id)})
+			let res2 = await axios.post('/v2/api/query/21', { "gene_id": parseInt(id) })
 			res2 = addLink(res2.data, 'name', ['barseq_experiment_id'], '/bagseq/libraries/1/experiments/?')
 			setExperiments(res2)
 
 			// let res3 = await axios(`/api/getGeneFragmentsExperiments/${id}`)
-			let res3 = await axios.post('/v2/api/query/20', {"gene_id": parseInt(id)})
+			let res3 = await axios.post('/v2/api/query/20', { "gene_id": parseInt(id) })
 			res3 = addLink(res3.data, 'name', ['barseq_experiment_id'], '/bagseq/libraries/1/experiments/?')
 			setFragmentExperiments(res3)
 		}
@@ -164,6 +164,20 @@ function GeneLandingPage() {
 		}
 	]
 
+	let expandRowFunction = (row, row_ind) => {
+		let genome_id = row['bagseq_library_id']
+		let experiment_id = row['barseq_experiment_id']
+		let gene_id = stats[0]['gene_id']
+		return (
+			<div style={{ minHeight: '100px' }}>
+				<Link className='btn btn-primary'
+					to={`/graphs/fitness/?genome_id=${genome_id}&experiment_id=${experiment_id}&gene_id=${gene_id}`}>
+					Fitness Graphs
+				</Link>
+			</div>
+		)
+	}
+
 
 	return (
 		<Aux>
@@ -173,10 +187,10 @@ function GeneLandingPage() {
 					{stats && <Title title='Gene' specific={stats[0]['name']} />}
 					{stats && <TableHorizontal content={stats} labels={StatsLabels} title="General Information" />}
 					<br />
-					<h4 style={{fontWeight: "700", marginBottom: "30px"}}>Experiments</h4>
-					<TableReactPaginated data={experiments} keyField="name" columns={ExperimentLabels} />
+					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Experiments</h4>
+					<TablePaginatedExpand data={experiments} keyField="name" columns={ExperimentLabels} expandRowFunction={expandRowFunction} />
 					<br />
-					<h4 style={{fontWeight: "700", marginBottom: "30px"}}>Fragment Experiments</h4>
+					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Fragment Experiments</h4>
 					<TableReactPaginated data={fragmenExperiments} keyField="barcode" columns={FragmentExperiments} />
 					<br />
 				</div>

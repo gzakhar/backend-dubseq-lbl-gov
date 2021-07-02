@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import TableReact from '../../UI/Table/TableReact';
 import Header from '../../UI/Header/Header';
 import Footer from '../../UI/Footer/Footer';
 import Content from '../../../hoc/Content/Content';
 import Aux from '../../../hoc/Aux';
 import { Link } from 'react-router-dom'
-import TableReactPaginated from '../../UI/Table/TableReactPaginated';
+import Table from '../../UI/Table/TablePaginatedExpand';
 
 function GenePage() {
 
@@ -76,6 +75,35 @@ function GenePage() {
 		}
 	]
 
+	let expandRowFunction = (row, row_ind) => {
+		return (
+			<ExpandedInfo geneId={row['gene_id']} />
+		)
+	}
+
+	function ExpandedInfo(props) {
+
+		const [link, setLink] = useState([])
+
+		useEffect(() => {
+			let fetchData = async () => {
+				let res = await axios.post('/v2/api/query/24', { 'gene_id': parseInt(props.geneId) })
+				setLink(res.data)
+			}
+			fetchData();
+		}, [])
+
+		return (
+			link.length !== 0 ? (
+
+				<div style={{ height: '100px' }}>
+					<button className='btn btn-success'>Download</button>
+					<Link to={`/graphs/fitness/?genome_id=${link[0]['bagseq_library_id']}&experiment_id=${link[0]['barseq_experiment_id']}&gene_id=${link[0]['gene_id']}`} className='btn btn-warning'>Max Score Recorded</Link>
+				</div>
+			)
+				: <div>Loading</div>
+		)
+	}
 
 	return (
 		<Aux>
@@ -84,7 +112,7 @@ function GenePage() {
 				<div className='container'>
 					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>{"Genes"}</h4>
 					<div style={{ backgroundColor: "white", borderRadius: '1rem' }}>
-						<TableReactPaginated keyField={'gene_id'} data={genes} columns={labels}/>
+						<Table keyField={'gene_id'} data={genes} columns={labels} expandRowFunction={expandRowFunction} />
 					</div>
 				</div>
 			</Content>
