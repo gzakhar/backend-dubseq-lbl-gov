@@ -3,6 +3,8 @@ import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import Chart from "react-apexcharts";
 import axios from 'axios';
+import { color } from 'd3';
+import { useLocation } from 'react-router-dom';
 
 
 function HeatMap() {
@@ -13,45 +15,56 @@ function HeatMap() {
 	const [experiments, setExperiments] = useState([])
 	const [selectedExperiments, setSelectedExperiment] = useState([])
 	const [selectedGenes, setSelectedGenes] = useState([])
+	let location = useLocation();
+
+	async function fetchHeatMapData() {
+		let res = await axios.post(`/api/heatmap/${selectedOrganism}`, {
+			geneIds: selectedGenes,
+			experimentIds: selectedExperiments
+		})
+		console.log(res.data)
+		let series = {}
+		res.data.forEach((d) => {
+			// if column does not exist
+			if (!series[d['condition_name']]) {
+				series[d['condition_name']] = []
+			}
+			// if the column already exists add a row
+			let arr = series[d['condition_name']]
+			arr.push({
+				x: d['gene_name'] ? d['gene_name'] : d['locus_tag'],
+				y: Math.round(d['score'] * 1000) / 1000
+			})
+
+		})
+
+		// console.log(series)
+
+		let array = []
+		Object.keys(series).forEach((columnName) => array.push({ name: columnName, data: series[columnName] }))
+
+		setData(array)
+	}
 
 	useEffect(() => {
+		
+		let params = new URLSearchParams(location.search)
+		setSelectedOrganism(Number(params.get("genome_id")))
+		setSelectedExperiment(params.getAll("experiment_ids").map(d => Number(d)))
+		setSelectedGenes(params.getAll("gene_ids").map(d => Number(d)))
 
-		if (selectedOrganism == null || selectedExperiments.length == 0 || selectedGenes.length == 0) return
+	}, [])
+
+	useEffect(() => {
 
 		console.log(selectedOrganism)
 		console.log(selectedExperiments)
 		console.log(selectedGenes)
-		async function fetchData() {
-			let res = await axios.post(`/api/heatmap/${selectedOrganism}`, {
-				geneIds: selectedGenes.map(gene => gene['value']),
-				experimentIds: selectedExperiments.map(experiment => experiment['value'])
-			})
-			console.log(res.data)
-			let series = {}
-			res.data.forEach((d) => {
-				// if column does not exist
-				if (!series[d['condition_name']]) {
-					series[d['condition_name']] = []
-				}
-				// if the column already exists add a row
-				let arr = series[d['condition_name']]
-				arr.push({
-					x: d['gene_name'] ? d['gene_name'] : d['locus_tag'],
-					y: Math.round(d['score'] * 1000) / 1000
-				})
 
-			})
+		if (selectedOrganism == null || selectedExperiments.length == 0 || selectedGenes.length == 0) return
 
-			// console.log(series)
-
-			let array = []
-			Object.keys(series).forEach((columnName) => array.push({ name: columnName, data: series[columnName] }))
-
-			setData(array)
-		}
-
-		fetchData()
-	}, [selectedExperiments, selectedGenes])
+		fetchHeatMapData()
+	}, [selectedExperiments, selectedGenes, location])
 
 	// Getting organisms.
 	useEffect(() => {
@@ -66,7 +79,7 @@ function HeatMap() {
 	useEffect(() => {
 		if (!selectedOrganism) return
 		const fetchExperiment = async () => {
-			let res = await axios.post('/v2/api/query/3', {'genome_id': selectedOrganism})
+			let res = await axios.post('/v2/api/query/3', { 'genome_id': selectedOrganism })
 			// console.log(res.data)
 			setExperiments(res.data)
 		}
@@ -100,22 +113,35 @@ function HeatMap() {
 				isDisabled={!selectedOrganism}
 				isMulti={true}
 				options={experiments.map(e => ({ value: e['barseq_experiment_id'], label: e['name'] }))}
-				onChange={e => setSelectedExperiment(e)} />
+				onChange={d => setSelectedExperiment(d.map(row => row['value']))} />
 			<AsyncSelect placeholder={"Select Genes"}
 				isDisabled={!selectedOrganism}
 				isMulti={true}
 				loadOptions={getGenes}
-				onChange={e => setSelectedGenes(e)} />
+				onChange={d => setSelectedGenes(d.map(row => row['value']))} />
 			<Chart
 				options={{
 					plotOptions: {
 						heatmap: {
+							// colors: ["#00A100"]
 							colorScale: {
+								min: -7,
+								max: 16,
 								ranges: [{
-									from: -5,
-									to: 15,
+									from: -7,
+									to: 0,
+									color: '#a10000',
+									name: 'negative'
+								}, {
+									from: 0,
+									to: 4,
+									color: '#9c9c00',
+									name: 'low'
+								}, {
+									from: 4,
+									to: 16,
 									color: '#00A100',
-									name: 'score'
+									name: 'high'
 								}
 								]
 							}
