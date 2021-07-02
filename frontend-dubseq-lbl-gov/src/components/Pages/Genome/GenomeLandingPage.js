@@ -11,7 +11,9 @@ import Content from '../../../hoc/Content/Content';
 import { Link } from 'react-router-dom';
 import Title from '../../UI/Title/Title';
 import TableReact from '../../UI/Table/TableReact';
+import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import Info from '../../UI/Info/InfoButton';
+import { addUID } from '../../../helper/helperFunctions';
 
 function GenomeLandingPage() {
 
@@ -36,6 +38,7 @@ function GenomeLandingPage() {
 			let res3 = await axios.post('/v2/api/query/4', { "genome_id": parseInt(id) })
 			res3.data = addLink(res3.data, 'name', ['barseq_experiment_id'], `/bagseq/libraries/${id}/experiments/<>`)
 			res3.data = addLink(res3.data, 'gene_name', ['barseq_experiment_id', 'gene_id'], `/graphs/fitness/?genome_id=${id}&experiment_id=<>&gene_id=<>`)
+			res3.data = addUID(res3.data)
 			setExperients(res3.data);
 			// let res4 = await axios(`/api/organisms/${id}/graphs`);
 			// setHistData(res4.data);
@@ -145,6 +148,22 @@ function GenomeLandingPage() {
 
 	let genomeName = stats ? stats[0]['name'] : ''
 
+	let expandRowFunction = (row, row_ind) => {
+		let genome_id = stats[0]['genome_id']
+		let experiment_id = row['barseq_experiment_id']
+		let gene_id = row['gene_id']
+		return (
+			<div style={{ minHeight: '100px' }}>
+				<Link className='btn btn-primary'
+					to={`/graphs/fitness/?genome_id=${genome_id}&experiment_id=${experiment_id}&gene_id=${gene_id}`}>
+					Fitness Graphs
+				</Link>
+			</div>
+		)
+	}
+
+
+
 	return (
 		<Aux>
 			<Header title={'GenomeLandingPage'} />
@@ -162,7 +181,8 @@ function GenomeLandingPage() {
 					</div>
 
 					<div style={{ marginTop: "70px" }}>
-						<TableReact content={experiments} keyField='max gene score' labels={TopPerformingLabels} title='Top Experiments Performed' />
+						<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Top Experiments Performed</h4>
+						<TablePaginatedExpand data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
 					</div>
 
 				</div>
