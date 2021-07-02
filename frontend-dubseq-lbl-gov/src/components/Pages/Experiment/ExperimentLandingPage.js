@@ -9,6 +9,7 @@ import Footer from '../../UI/Footer/Footer';
 import Title from '../../UI/Title/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
+import { roundTo } from '../../../helper/helperFunctions';
 
 
 function ExperiemntLandingPage() {
@@ -26,8 +27,9 @@ function ExperiemntLandingPage() {
 
 			// let res2 = await axios(`/libraries/${id}/experiments/${id_experiment}/genes`);
 			let res2 = await axios.post('/v2/api/query/11', {"library_id": parseInt(id), "experiment_id": parseInt(id_experiment)})
-			res2.data = addLink(res2.data, 'gene_name', ['gene_id'], '/genes/?')
-			setGenes(res2.data);
+			res2 = addLink(res2.data, 'gene_name', ['gene_id'], '/genes/?')
+			res2 = res2.map(row => ({...row, 'score': roundTo(row['score'], 4)}))
+			setGenes(res2);
 
 			// let res3 = await axios(`/libraries/${id}/experiments/${id_experiment}/fragments`);
 			// let res3 = await axios.post('/v2/api/query/12', {"library_id": id, "experiment_id": id_experiment})
@@ -139,6 +141,7 @@ function ExperiemntLandingPage() {
 					{stats && <TableHorizontal content={stats} labels={StatsLabels} title="General Information" />}
 					<br />
 					{/* {genes && <TableReact content={genes} keyField='gene id' labels={topScoringGensLabels} title="Top Scoring Genes (top 20 highest scores)" />} */}
+					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Top gene scores</h4>
 					<TablePaginatedExpand data={genes} keyField={'gene_id'} columns={topScoringGensLabels} expandRowFunction={expandRowFunction} />
 					<br />
 					{/* {fragments && <TableReact content={fragments} keyField='fragment id' labels={topScoringFragments} title="Top Scoring Fragments" />} */}

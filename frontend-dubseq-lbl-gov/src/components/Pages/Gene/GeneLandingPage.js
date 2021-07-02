@@ -10,6 +10,7 @@ import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
+import {roundTo, addUID} from '../../../helper/helperFunctions';
 
 function GeneLandingPage() {
 
@@ -31,11 +32,16 @@ function GeneLandingPage() {
 			// let res2 = await axios(`/api/getTopGeneExperiments/${id}`)
 			let res2 = await axios.post('/v2/api/query/21', { "gene_id": parseInt(id) })
 			res2 = addLink(res2.data, 'name', ['barseq_experiment_id'], '/bagseq/libraries/1/experiments/?')
+			res2 = res2.map(row => ({...row, 'score_cnnls': roundTo(row['score_cnnls'], 4)}))
+			res2 = addUID(res2)
+			console.log(res2)
 			setExperiments(res2)
 
 			// let res3 = await axios(`/api/getGeneFragmentsExperiments/${id}`)
 			let res3 = await axios.post('/v2/api/query/20', { "gene_id": parseInt(id) })
 			res3 = addLink(res3.data, 'name', ['barseq_experiment_id'], '/bagseq/libraries/1/experiments/?')
+			res3 = res3.map(row => ({...row, 'score': roundTo(row['score'], 4)}))
+			res3 = addUID(res3)
 			setFragmentExperiments(res3)
 		}
 
@@ -188,10 +194,10 @@ function GeneLandingPage() {
 					{stats && <TableHorizontal content={stats} labels={StatsLabels} title="General Information" />}
 					<br />
 					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Experiments</h4>
-					<TablePaginatedExpand data={experiments} keyField="name" columns={ExperimentLabels} expandRowFunction={expandRowFunction} />
+					<TablePaginatedExpand data={experiments} keyField="uid" columns={ExperimentLabels} expandRowFunction={expandRowFunction} />
 					<br />
 					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Fragment Experiments</h4>
-					<TableReactPaginated data={fragmenExperiments} keyField="barcode" columns={FragmentExperiments} />
+					<TableReactPaginated data={fragmenExperiments} keyField="uid" columns={FragmentExperiments} />
 					<br />
 				</div>
 			</Content>
