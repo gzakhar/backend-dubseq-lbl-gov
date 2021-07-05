@@ -6,8 +6,8 @@ import Table from '../../UI/Table/Table';
 import Content from '../../../hoc/Content/Content';
 import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom';
-import TableReact from '../../UI/Table/TableReact';
 import TableReactExpandable from '../../UI/Table/TableReactExpandable';
+import { downloadObjectAsCSV, downloadObjectAsJSON, downloadObjectAsJson, jsonToCsv } from '../../../helper/helperFunctions';
 
 const NCBI_TAXONOMY_ID_BROWSER = 'https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id='
 
@@ -18,7 +18,7 @@ function GenomeList() {
 	useEffect(() => {
 
 		async function fetchData() {
-			// https://docs.google.com/spreadsheets/d/1OJNuSJz9_057EFYK5IbSUbV0dIMaY7Po3cnTlkhThq4/edit#gid=0
+			// https://docs.google.com/spreadsheets/d/1OJNuSJz9_057EFYK5IbSUbV0dIMaY7Po3cnTlkhTdq4/edit#gid=0
 			let res = await axios.post('v2/api/query/0')
 			res.data = res.data.map(e => {
 				e['link'] = <Link to={`/organisms/${e.genome_id}`}>See More</Link>;
@@ -79,15 +79,34 @@ function GenomeList() {
 		}
 	]
 
+	async function handleDownloadGenomeCSV(genomeId, genomeName) {
+		let res = await axios.post('/v2/api/query/1', { 'genome_id': genomeId })
+		downloadObjectAsCSV(res.data, `${genomeName}-genome`)
+	}
+
+	async function handleDownloadGenomeJSON(genomeId, genomeName) {
+		let res = await axios.post('/v2/api/query/1', { 'genome_id': genomeId })
+		downloadObjectAsJSON(res.data, `${genomeName}-genome`)
+	}
 
 
 	let expandRowFunction = (row, row_ind) => {
 		return (
-			<div>
-				<button className='btn btn-success'>Download</button>
-				<Link to={`/graphs/heatmap/${row['genome_id']}`} className='btn btn-primary'>Heat-map</Link>
-				<Link to={`/graphs/fitness/${row['genome_id']}`} className='btn btn-warning'>Fitness</Link>
-			</div>
+			<table style={{width: '100%'}}>
+				<tr>
+					<th>Download</th>
+					<th>heat-map</th>
+					<th>Fitness</th>
+				</tr>
+				<tr>
+					<td><button className='btn btn-success' onClick={() => handleDownloadGenomeCSV(row['genome_id'], row['name'])}> CSV </button> </td>
+					<td><Link to={`/graphs/heatmap/${row['genome_id']}`} className='btn btn-primary'>Heat-map</Link></td>
+					<td><Link to={`/graphs/fitness/${row['genome_id']}`} className='btn btn-warning'>Fitness</Link></td>
+				</tr>
+				<tr>
+				<td><button className='btn btn-success' onClick={() => handleDownloadGenomeJSON(row['genome_id'], row['name'])}> JSON </button> </td>
+				</tr>
+			</table>
 		)
 	}
 
