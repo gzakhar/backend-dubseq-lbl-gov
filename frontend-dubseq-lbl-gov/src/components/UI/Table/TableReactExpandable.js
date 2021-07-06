@@ -10,9 +10,9 @@ function TableReactExpandable(props) {
 		renderer: props.expandRowFunction,
 		showExpandColumn: true,
 		expandByColumnOnly: true,
-		expandHeaderColumnRenderer: ({ isAnyExpands }) => (<div style={{ width:'55px' }}>#</div>),
-		// expandColumnRenderer: ({ expanded }) => (expanded ? '▼' : '►')
-		expandColumnRenderer: ({ expanded }) => (expanded ? '-' : '+')
+		expandHeaderColumnRenderer: ({ isAnyExpands }) => (<div style={{ width: '55px' }}>#</div>),
+		// expandColumnRenderer: ({ expanded }) => <div className='btn btn-primary' style={{cursor: 'pointer'}}>{expanded ? '-' : '+'}</div>
+		expandColumnRenderer: ({ expanded }) => <div style={{ cursor: 'pointer' }}>{expanded ? '▼' : '▶'}</div>
 	};
 
 	return (

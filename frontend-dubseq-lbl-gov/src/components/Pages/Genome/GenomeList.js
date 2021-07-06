@@ -95,13 +95,13 @@ function GenomeList() {
 			<table style={{width: '100%'}}>
 				<tr>
 					<th>Download</th>
-					<th>heat-map</th>
+					<th>Heat-map</th>
 					<th>Fitness</th>
 				</tr>
 				<tr>
 					<td><button className='btn btn-success' onClick={() => handleDownloadGenomeCSV(row['genome_id'], row['name'])}> CSV </button> </td>
-					<td><Link to={`/graphs/heatmap/${row['genome_id']}`} className='btn btn-primary'>Heat-map</Link></td>
-					<td><Link to={`/graphs/fitness/${row['genome_id']}`} className='btn btn-warning'>Fitness</Link></td>
+					<td><Link to={`/graphs/heatmap/?genome_id=${row['genome_id']}`} className='btn btn-primary'>Heat-map</Link></td>
+					<td><Link to={`/graphs/fitness/?genome_id=${row['genome_id']}`} className='btn btn-warning'>Fitness</Link></td>
 				</tr>
 				<tr>
 				<td><button className='btn btn-success' onClick={() => handleDownloadGenomeJSON(row['genome_id'], row['name'])}> JSON </button> </td>

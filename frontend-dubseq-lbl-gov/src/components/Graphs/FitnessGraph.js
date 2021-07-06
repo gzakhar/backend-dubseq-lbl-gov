@@ -149,6 +149,7 @@ function FitnessGraph() {
 				<div className={'w-50'}>
 					<Select placeholder={"Select Organism"}
 						defaultValue={selectedOrganism}
+						value='none'
 						options={organisms.map(e => ({ value: e['genome_id'], label: e['name'] }))}
 						onChange={e => setSelectedOrganism(e.value)} />
 					<Select placeholder={"Select Experiment"}

@@ -12,7 +12,8 @@ function TablePaginatedExpand(props) {
 		showExpandColumn: true,
 		expandByColumnOnly: true,
 		expandHeaderColumnRenderer: () => '#',
-		expandColumnRenderer: ({ expanded }) => (expanded ? '-' : '+')
+		// expandColumnRenderer: ({ expanded }) => (expanded ? '-' : '+')
+		expandColumnRenderer: ({ expanded }) => <div style={{ cursor: 'pointer' }}>{expanded ? '▼' : '▶'}</div>
 	};
 
 	const options = {
