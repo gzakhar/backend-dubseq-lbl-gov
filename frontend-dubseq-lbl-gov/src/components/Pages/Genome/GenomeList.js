@@ -8,6 +8,7 @@ import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom';
 import TableReactExpandable from '../../UI/Table/TableReactExpandable';
 import { downloadObjectAsCSV, downloadObjectAsJSON, downloadObjectAsJson, jsonToCsv } from '../../../helper/helperFunctions';
+import { TableTitle } from '../../UI/Titles/Title';
 
 const NCBI_TAXONOMY_ID_BROWSER = 'https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id='
 
@@ -116,7 +117,8 @@ function GenomeList() {
 			<Header title="TablePage" />
 			<Content>
 				<div className='container'>
-					<TableReactExpandable title="Organisms" keyField='genome_id' content={genomeList} labels={lables} expandRowFunction={expandRowFunction} />
+					<TableTitle title='Organisms' tooltip='A list of Organisms that are available on this website'/>
+					<TableReactExpandable keyField='genome_id' content={genomeList} labels={lables} expandRowFunction={expandRowFunction} />
 				</div>
 			</Content>
 			<Footer />

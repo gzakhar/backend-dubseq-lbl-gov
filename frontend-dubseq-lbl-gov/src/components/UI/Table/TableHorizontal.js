@@ -14,7 +14,7 @@ const TableHorizontal = (props) => {
 
 		return labels.map((label, i) => (
 			<tr key={i}>
-				<th>{label['text']}</th>
+				<th style={{color: '#272727'}}>{label['text']}</th>
 				<td>{data[label['dataField']]}</td>
 			</tr>))
 

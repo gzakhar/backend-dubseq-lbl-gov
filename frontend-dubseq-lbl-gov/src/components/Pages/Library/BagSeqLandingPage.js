@@ -4,12 +4,10 @@ import Aux from '../../../hoc/Aux';
 import Header from '../../UI/Header/Header';
 import Footer from '../../UI/Footer/Footer';
 import axios from 'axios';
-import Table from '../../UI/Table/Table';
-import HistogramD3 from '../../D3Components/HistogramD3';
 import TableHorizontal from '../../UI/Table/TableHorizontal';
 import HorizontalLayout from '../../Layouts/HorizontalLayout';
 import Content from '../../../hoc/Content/Content';
-import Title from '../../UI/Title/Title';
+import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 
@@ -25,15 +23,15 @@ function BagSeqLandingPage() {
 
 		async function fetchData() {
 			// let res1 = await axios.get(`/api/libraries/${id}/stats`);
-			let res1 = await axios.post('/v2/api/query/16', {'library_id': parseInt(id)})
+			let res1 = await axios.post('/v2/api/query/16', { 'library_id': parseInt(id) })
 			setStats(res1.data);
 			// let res2 = await axios.get(`/api/libraries/${id}/experiments`);
-			let res2 = await axios.post('/v2/api/query/17', {'library_id': parseInt(id)})
+			let res2 = await axios.post('/v2/api/query/17', { 'library_id': parseInt(id) })
 			res2.data = addLink(res2.data, 'itnum', ['experiment_id'], '/bagseq/libraries/${id}/experiments/${id_experiment}')
 			setExperients(res2.data);
 
 			// let res3 = await axios.get(`/api/libraries/${id}/highscoregenes`);
-			let res3 = await axios.post('/v2/api/query/13', {'library_id': parseInt(id)})
+			let res3 = await axios.post('/v2/api/query/13', { 'library_id': parseInt(id) })
 			res3.data = res3.data.map((row, index) => ({
 				'uid': index,
 				...row
@@ -158,16 +156,15 @@ function BagSeqLandingPage() {
 			<Header title='Library LandingPage' />
 			<Content>
 				<div className='container'>
-					{stats && <Title title='Dub-seq Library' specific={stats[0]['name']} />}
+					{stats && <PageTitle title='Dub-seq Library' specific={stats[0]['name']} />}
 					{stats && <HorizontalLayout content={[
 						<TableHorizontal content={stats} labels={StatsLabels} title='General Information' />,
-						// <HistogramD3 data={histData} mountingId={`class_${1}`} />
 					]} contentWidth={[6, 6]} />}
 					<br />
-					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Experiments (high scoring genes - genes scored above 4)</h4>
+					<TableTitle title='Experiments high scoring genes' tooltip='genes scored above 4.' />
 					<TableReactPaginated data={experiments} keyField='experiment id' columns={ExperimentLabels} />
 					<br />
-					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Top Performing Genes</h4>
+					<TableTitle title='Top Performing Genes' tooltip='Genes that perform best in this experiment.' />
 					<TablePaginatedExpand data={topPerformingGenes} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRow} />
 					<br />
 				</div>

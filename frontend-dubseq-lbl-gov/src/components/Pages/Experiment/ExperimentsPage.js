@@ -10,6 +10,7 @@ import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom'
 // import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 import TableReactPaginated from '../../UI/Table/TablePaginatedExpand';
+import { TableTitle } from '../../UI/Titles/Title';
 
 
 // const libraryIdLink = '/bagseq/libraries/${id}';
@@ -135,7 +136,7 @@ function ExperimentsPage() {
 			<Header title="TablePage" />
 			<Content>
 				<div className='container' style={{ paddingBottom: "40px" }}>
-					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>{"Experiments"}</h4>
+					<TableTitle title='Experiments' tooltip='Experiments loaded into DubSeq Browser.'/>
 					<TableReactPaginated data={experiments} keyField={'index'} columns={labels} expandRowFunction={expandRowFunction} />
 				</div>
 			</Content>

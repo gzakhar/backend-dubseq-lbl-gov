@@ -1,10 +1,12 @@
 body {
-  font-family: 'Roboto', sans-serif;
+  /* font-family: 'Roboto', sans-serif; */
+  font-family: 'Courier New', Courier, monospace;
 }
 
-code {
+/* code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
+  font-family: 'Courier New', Courier, monospace;
+} */
 
 html, body, #root{
   height: 100%;

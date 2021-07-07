@@ -6,7 +6,7 @@ import TableHorizontal from '../../UI/Table/TableHorizontal';
 import Header from '../../UI/Header/Header';
 import Content from '../../../hoc/Content/Content';
 import Footer from '../../UI/Footer/Footer';
-import Title from '../../UI/Title/Title';
+import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import { roundTo } from '../../../helper/helperFunctions';
@@ -22,13 +22,13 @@ function ExperiemntLandingPage() {
 	useEffect(() => {
 		async function fetchData() {
 			// let res1 = await axios(`/libraries/${id}/experiments/${id_experiment}/stats`);
-			let res1 = await axios.post('/v2/api/query/10', {"library_id": parseInt(id), "experiment_id": parseInt(id_experiment)})
+			let res1 = await axios.post('/v2/api/query/10', { "library_id": parseInt(id), "experiment_id": parseInt(id_experiment) })
 			setStats(res1.data);
 
 			// let res2 = await axios(`/libraries/${id}/experiments/${id_experiment}/genes`);
-			let res2 = await axios.post('/v2/api/query/11', {"library_id": parseInt(id), "experiment_id": parseInt(id_experiment)})
+			let res2 = await axios.post('/v2/api/query/11', { "library_id": parseInt(id), "experiment_id": parseInt(id_experiment) })
 			res2 = addLink(res2.data, 'gene_name', ['gene_id'], '/genes/?')
-			res2 = res2.map(row => ({...row, 'score': roundTo(row['score'], 4)}))
+			res2 = res2.map(row => ({ ...row, 'score': roundTo(row['score'], 4) }))
 			setGenes(res2);
 
 			// let res3 = await axios(`/libraries/${id}/experiments/${id_experiment}/fragments`);
@@ -126,7 +126,7 @@ function ExperiemntLandingPage() {
 			<div style={{ minHeight: '100px' }}>
 				<Link className='btn btn-primary'
 					to={`/graphs/fitness/?genome_id=${genome_id}&experiment_id=${experiment_id}&gene_id=${gene_id}`}>
-						Fitness Graphs
+					Fitness Graphs
 				</Link>
 			</div>
 		)
@@ -137,11 +137,11 @@ function ExperiemntLandingPage() {
 			<Header title='Experiment LandingPage' />
 			<Content>
 				<div className='container'>
-					{stats && <Title title='Experiment' specific={stats[0]['name']} />}
+					{stats && <PageTitle title='Experiment' specific={stats[0]['name']} />}
 					{stats && <TableHorizontal content={stats} labels={StatsLabels} title="General Information" />}
 					<br />
-					{/* {genes && <TableReact content={genes} keyField='gene id' labels={topScoringGensLabels} title="Top Scoring Genes (top 20 highest scores)" />} */}
-					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Top gene scores</h4>
+					
+					<TableTitle title='Top gene scores' tooltip='Top scoring genes in this experiment.' />
 					<TablePaginatedExpand data={genes} keyField={'gene_id'} columns={topScoringGensLabels} expandRowFunction={expandRowFunction} />
 					<br />
 					{/* {fragments && <TableReact content={fragments} keyField='fragment id' labels={topScoringFragments} title="Top Scoring Fragments" />} */}

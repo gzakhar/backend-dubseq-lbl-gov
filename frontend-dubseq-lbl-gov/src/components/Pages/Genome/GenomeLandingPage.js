@@ -9,10 +9,9 @@ import TableHorizontal from '../../UI/Table/TableHorizontal';
 import HorizontalLayout from '../../Layouts/HorizontalLayout';
 import Content from '../../../hoc/Content/Content';
 import { Link } from 'react-router-dom';
-import Title from '../../UI/Title/Title';
+import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
-import Info from '../../UI/Info/InfoButton';
 import { addUID } from '../../../helper/helperFunctions';
 
 function GenomeLandingPage() {
@@ -169,19 +168,18 @@ function GenomeLandingPage() {
 			<Header title={'GenomeLandingPage'} />
 			<Content>
 				<div className='container' style={{ paddingBottom: "40px" }}>
-					{stats && <Title title={'Organism'} specific={genomeName} />}
+					{stats && <PageTitle title={'Organism'} specific={genomeName} />}
 					{stats && <HorizontalLayout content={[
 						<TableHorizontal content={stats} labels={StatsLabels} title='General Information' />,
 						<RadialGraph />
 					]} contentWidth={[6, 6]} />}
 					<div style={{ marginTop: "50px" }}>
-						<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Libraries Created</h4>
-						<Info />
+						<TableTitle title='Libraries Created' tooltip={`List of libraries created with ${genomeName}`}/>
 						<TableReact content={library} keyField='id' labels={LibrariesLabels} />
 					</div>
 
 					<div style={{ marginTop: "70px" }}>
-						<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>Top Experiments Performed</h4>
+						<TableTitle title='Top Experiments Performed' tooltip={`Top experiments performed on ${genomeName} and the gene was activated.`}/>
 						<TablePaginatedExpand data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
 					</div>
 

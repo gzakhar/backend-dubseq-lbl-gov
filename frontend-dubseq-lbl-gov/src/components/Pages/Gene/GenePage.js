@@ -6,6 +6,7 @@ import Content from '../../../hoc/Content/Content';
 import Aux from '../../../hoc/Aux';
 import { Link } from 'react-router-dom'
 import Table from '../../UI/Table/TablePaginatedExpand';
+import {TableTitle} from '../../UI/Titles/Title';
 
 function GenePage() {
 
@@ -110,7 +111,7 @@ function GenePage() {
 			<Header title='Genes' />
 			<Content>
 				<div className='container'>
-					<h4 style={{ fontWeight: "700", marginBottom: "30px" }}>{"Genes"}</h4>
+					<TableTitle title='Genes' tooltip='All genes loaded into DubSeq Browser.'/>
 					<div style={{ backgroundColor: "white", borderRadius: '1rem' }}>
 						<Table keyField={'gene_id'} data={genes} columns={labels} expandRowFunction={expandRowFunction} />
 					</div>
