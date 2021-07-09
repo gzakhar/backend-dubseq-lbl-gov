@@ -11,7 +11,7 @@ import Content from '../../../hoc/Content/Content';
 import { Link } from 'react-router-dom';
 import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
-import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
+import TablePaginatedExpand from '../../UI/Table/TableReactPES';
 import { addUID } from '../../../helper/helperFunctions';
 
 function GenomeLandingPage() {
@@ -20,6 +20,7 @@ function GenomeLandingPage() {
 	const [stats, setStats] = useState(null);
 	const [library, setLibrary] = useState([]);
 	const [experiments, setExperients] = useState([]);
+	const [selectedExperiments, setSelectedExperiments] = useState([]);
 
 	useEffect(() => {
 
@@ -161,6 +162,17 @@ function GenomeLandingPage() {
 		)
 	}
 
+	const LinkToHeatMap = () => {
+
+		let genomeId = `?genome_id=${id}`
+		let experimentsAndGenes = selectedExperiments.map(row => ('&experiment_ids=' + row['barseq_experiment_id'] + '&gene_ids=' + row['gene_id'])).join('')
+		return (
+			<Link className={'btn btn-warning'}
+				style={{height:'40px'}}
+				to={`/graphs/heatmap/${genomeId}${experimentsAndGenes}`}>HeatMap</Link >
+		)
+	}
+
 
 
 	return (
@@ -174,13 +186,16 @@ function GenomeLandingPage() {
 						<RadialGraph />
 					]} contentWidth={[6, 6]} />}
 					<div style={{ marginTop: "50px" }}>
-						<TableTitle title='Libraries Created' tooltip={`List of libraries created with ${genomeName}`}/>
+						<TableTitle title='Libraries Created' tooltip={`List of libraries created with ${genomeName}`} />
 						<TableReact content={library} keyField='id' labels={LibrariesLabels} />
 					</div>
 
 					<div style={{ marginTop: "70px" }}>
-						<TableTitle title='Top Experiments Performed' tooltip={`Top experiments performed on ${genomeName} and the gene was activated.`}/>
-						<TablePaginatedExpand data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
+						<div className='d-flex justify-content-between'>
+							<TableTitle title='Top Experiments Performed' tooltip={`Top experiments performed on ${genomeName} and the gene was activated.`} />
+							<LinkToHeatMap />
+						</div>
+						<TablePaginatedExpand setSelectedRows={setSelectedExperiments} selectedRows={selectedExperiments} data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
 					</div>
 
 				</div>
