@@ -37,7 +37,7 @@ function GenomeLandingPage() {
 			// let res3 = await axios(`/api/organisms/${id}/topexperiments`);
 			let res3 = await axios.post('/v2/api/query/4', { "genome_id": parseInt(id) })
 			res3.data = addLink(res3.data, 'name', ['barseq_experiment_id'], `/bagseq/libraries/${id}/experiments/<>`)
-			res3.data = addLink(res3.data, 'gene_name', ['barseq_experiment_id', 'gene_id'], `/graphs/fitness/?genome_id=${id}&experiment_id=<>&gene_id=<>`)
+			res3.data = addLink(res3.data, 'gene_name', ['gene_id'], `/genes/<>`)
 			res3.data = addUID(res3.data)
 			setExperients(res3.data);
 			// let res4 = await axios(`/api/organisms/${id}/graphs`);
