@@ -5,7 +5,6 @@ import { scaleLinear } from 'd3-scale';
 import { max, min } from 'd3-array';
 import { axisBottom, axisLeft } from 'd3-axis';
 import './FitnessGraph.css'
-import { style } from 'd3';
 
 const margin = { top: 100, right: 20, bottom: 50, left: 50 };
 
@@ -145,14 +144,35 @@ function FitnessLandscapeD3(props) {
 			.attr('y1', d => yScale(d.score))
 			.attr('y2', d => yScale(d.score))
 			.style('stroke', d => colorFrags(d.posFrom, d.posTo))
-			.style('stroke-width', 2);
+			.style('stroke-width', 2)
+			.on('mouseover', handleMouseOverFragment)
+			.on('mouseout', handleMouseOffFragment)
 
+	}
+
+	function handleMouseOverFragment(d, i) {
+
+		select(this)
+			.style('stroke-width', 4)
+
+		// TODO make the id of dot labels more unique
+		select(this.parentNode).append('text')
+			.attr('id', "fragment_label")
+			.attr('x', this.getAttribute('x1'))
+			.attr('y', this.getAttribute('y1') - 5)
+			.text(`${i['pos_from']} - ${i['pos_to']} (bp)`)
+	}
+
+	function handleMouseOffFragment(d, i) {
+
+		select(this)
+			.style('stroke-width', 2)
+
+		select('#fragment_label').remove()
 	}
 
 
 	function updateGraph() {
-
-		console.log("update graph");
 
 		minGenePos = min(props.data.fragmentData, d => d.posFrom);
 		maxGenePos = max(props.data.fragmentData, d => d.posTo);
@@ -166,9 +186,10 @@ function FitnessLandscapeD3(props) {
 			.domain([minGenePos, maxGenePos])
 			.range([0, graphWidth]);
 
+		let maxFragScore = props.data.fragmentData.map(row => row['score']).reduce((0, (f, s) => (f > s ? f : s)), 0)
 		// HardCode the minimum and the maximum of possible fragment scores.
 		let yScale = scaleLinear()
-			.domain([-5, props.current.score_cnnls > 12 ? props.current.score_cnnls + 2 : 12])
+			.domain([-5, maxFragScore > 12 ? maxFragScore + 2 : 12])
 			.range([graphHeight, 0]);
 
 		// Suggest the number of ticks with axis().ticks(#)
@@ -251,8 +272,7 @@ function FitnessLandscapeD3(props) {
 
 		let currentGeneLabel = fragmentChart.append('g')
 			.attr('id', 'currentGeneLabel')
-			.attr('transform', `translate(20, ${props.current.score_cnnls < 6 ? 10 : props.current.score_cnnls - 30})`)
-
+			.attr('transform', `translate(20, ${maxFragScore < 6 ? 10 : maxFragScore - 30})`)
 
 		// currentGeneLabel.append('rect')
 		// 	.attr('height', 40)
@@ -273,7 +293,7 @@ function FitnessLandscapeD3(props) {
 
 	return (
 		<Aux>
-			<svg ref={props.reference} className='canvas' viewBox={`0 0 ${totalGraphWidth} ${totalGraphHeight}`}/>
+			<svg ref={props.reference} className='canvas' viewBox={`0 0 ${totalGraphWidth} ${totalGraphHeight}`} />
 		</Aux>
 	)
 }

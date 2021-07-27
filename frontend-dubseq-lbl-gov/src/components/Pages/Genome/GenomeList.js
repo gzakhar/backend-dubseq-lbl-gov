@@ -93,7 +93,7 @@ function GenomeList() {
 
 	let expandRowFunction = (row, row_ind) => {
 		return (
-			<table style={{width: '100%'}}>
+			<table style={{ width: '100%' }}>
 				<tr>
 					<th>Download</th>
 					<th>Heat-map</th>
@@ -105,7 +105,7 @@ function GenomeList() {
 					<td><Link to={`/graphs/fitness/?genome_id=${row['genome_id']}`} className='btn btn-warning'>Fitness</Link></td>
 				</tr>
 				<tr>
-				<td><button className='btn btn-success' onClick={() => handleDownloadGenomeJSON(row['genome_id'], row['name'])}> JSON </button> </td>
+					<td><button className='btn btn-success' onClick={() => handleDownloadGenomeJSON(row['genome_id'], row['name'])}> JSON </button> </td>
 				</tr>
 			</table>
 		)
@@ -117,7 +117,7 @@ function GenomeList() {
 			<Header title="TablePage" />
 			<Content>
 				<div className='container'>
-					<TableTitle title='Organisms' tooltip='A list of Organisms that are available on this website'/>
+					<TableTitle title='Organisms' tooltip='A list of Organisms that are available on this website' />
 					<TableReactExpandable keyField='genome_id' content={genomeList} labels={lables} expandRowFunction={expandRowFunction} />
 				</div>
 			</Content>

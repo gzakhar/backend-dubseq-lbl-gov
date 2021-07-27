@@ -6,6 +6,7 @@ import Select from 'react-select'
 import AsyncSelect from 'react-select/async'
 import { useLocation } from 'react-router-dom';
 import downloadSvg from 'svg-crowbar';
+import { downloadObjectAsCSV, downloadObjectAsJSON } from '../../helper/helperFunctions';
 
 const range = 10000;
 const zoom = 0.2
@@ -78,8 +79,14 @@ function FitnessGraph() {
 		if (experiments.length == 0) return
 
 		try {
-			let res = await axios(`/api/organisms/${selectedOrganism}/${selectedExperiment}/genes/${start.toLowerCase()}`)
-			return res.data.map(e => ({ value: e['gene_id'], label: e['name'] }))
+			// let res = await axios(`/api/organisms/${selectedOrganism}/${selectedExperiment}/genes/${start.toLowerCase()}`)
+			let res = await axios.post(`/v2/api/query/25`, {
+				'genome_id': selectedOrganism,
+				'gene_name': start
+			})
+
+			console.log(res.data)
+			return res.data.map(e => ({ value: e['gene_id'], label: e['gene_name'] }))
 		} catch (err) {
 			console.log(err)
 			return []
@@ -134,13 +141,35 @@ function FitnessGraph() {
 		currentGeneId.current = gene_id
 
 		// let res = await axios(`/api/getGenes/${gene_id}`, { baseURL: '/' })
-		let res = await axios.post('/v2/api/query/19/', { 'gene_id': parseInt(gene_id) })
+		let res = await axios.post('/v2/api/query/19', { 'gene_id': parseInt(gene_id) })
 		let { s, f } = findRange(res.data[0]);
 
 		setPosition({ start: s, end: f })
 	}
 
+	async function handleClickDownloadFragmentsCSV() {
+		let res = await axios.post('/v2/api/query/26', {
+			'library_id': parseInt(selectedOrganism),
+			'experiment_id': parseInt(selectedExperiment),
+			'frag_start': parseInt(position.start),
+			'frag_stop': parseInt(position.end)
+		})
+		let libraryName = res.data.shift()['name']
+		let experimentId = res.data.shift()['itnum']
+		downloadObjectAsCSV(res.data, `lib(${libraryName})_experiment(${experimentId})_fragments(${position.start} - ${position.end})`)
+	}
 
+	async function handleClickDownloadFragmentsJSON() {
+		let res = await axios.post('/v2/api/query/26', {
+			'library_id': parseInt(selectedOrganism),
+			'experiment_id': parseInt(selectedExperiment),
+			'frag_start': parseInt(position.start),
+			'frag_stop': parseInt(position.end)
+		})
+		let libraryName = res.data.shift()['name']
+		let experimentId = res.data.shift()['itnum']
+		downloadObjectAsJSON(res.data, `lib(${libraryName})_experiment(${experimentId})_fragments(${position.start} - ${position.end})`)
+	}
 
 
 	return (
@@ -205,6 +234,21 @@ function FitnessGraph() {
 					handleClickGene={changeCurrent}
 					reference={svgElement}
 				/>
+			</div>
+			<br />
+			<div className='download'>
+				<h2>Downloads</h2>
+				<ul style={{ listStyleType: 'disc' }}>
+					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+						downloadSvg(svgElement.current, 'geneExperimentGenome.svg');
+					}}>download picture (SVG)</div></li>
+					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+						handleClickDownloadFragmentsCSV()
+					}}>download fragments (CSV)</div></li>
+					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+						handleClickDownloadFragmentsJSON()
+					}}>download fragments (JSON)</div></li>
+				</ul>
 			</div>
 		</Aux>
 	)

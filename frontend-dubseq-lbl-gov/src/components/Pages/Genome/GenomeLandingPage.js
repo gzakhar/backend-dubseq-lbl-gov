@@ -12,7 +12,10 @@ import { Link } from 'react-router-dom';
 import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TableReactPES';
-import { addUID } from '../../../helper/helperFunctions';
+import { addUID, downloadObjectAsCSV, roundTo } from '../../../helper/helperFunctions';
+import CircleLoader from "react-spinners/CircleLoader";
+
+const TOP_EXPERIMENT_THRESHOLD = 4
 
 function GenomeLandingPage() {
 
@@ -21,6 +24,8 @@ function GenomeLandingPage() {
 	const [library, setLibrary] = useState([]);
 	const [experiments, setExperients] = useState([]);
 	const [selectedExperiments, setSelectedExperiments] = useState([]);
+	const [topExperimentsThreshold, setTopExperimentsThreshold] = useState(4);
+	const [loading, setLoading] = useState(false)
 
 	useEffect(() => {
 
@@ -35,17 +40,18 @@ function GenomeLandingPage() {
 			setLibrary(res2.data);
 
 			// let res3 = await axios(`/api/organisms/${id}/topexperiments`);
-			let res3 = await axios.post('/v2/api/query/4', { "genome_id": parseInt(id) })
+			let res3 = await axios.post('/v2/api/query/4', {
+				'genome_id': parseInt(id),
+				'score_threshold': TOP_EXPERIMENT_THRESHOLD
+			})
 			res3.data = addLink(res3.data, 'name', ['barseq_experiment_id'], `/bagseq/libraries/${id}/experiments/<>`)
 			res3.data = addLink(res3.data, 'gene_name', ['gene_id'], `/genes/<>`)
 			res3.data = addUID(res3.data)
+			res3.data = res3.data.map(row => ({ ...row, 'max_gene_score': roundTo(row['max_gene_score'], 4) }))
 			setExperients(res3.data);
-			// let res4 = await axios(`/api/organisms/${id}/graphs`);
-			// setHistData(res4.data);
 		}
 
 		fetchData();
-		console.log("Update");
 
 		// eslint-disable-next-line
 	}, [])
@@ -168,11 +174,31 @@ function GenomeLandingPage() {
 		let experimentsAndGenes = selectedExperiments.map(row => ('&experiment_ids=' + row['barseq_experiment_id'] + '&gene_ids=' + row['gene_id'])).join('')
 		return (
 			<Link className={'btn btn-warning'}
-				style={{height:'40px'}}
+				style={{ height: '40px' }}
 				to={`/graphs/heatmap/${genomeId}${experimentsAndGenes}`}>HeatMap</Link >
 		)
 	}
 
+
+	async function handleDownloadTopExperiments() {
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/4', {
+			'genome_id': parseInt(id),
+			'score_threshold': parseInt(topExperimentsThreshold)
+		})
+		downloadObjectAsCSV(res.data, `topExperiments threchold(${topExperimentsThreshold})`)
+		setLoading(false)
+	}
+
+	async function handleDownloadAllTopExperiments() {
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/4', {
+			'genome_id': parseInt(id),
+			'score_threshold': -1000
+		})
+		downloadObjectAsCSV(res.data, 'topExperiments all')
+		setLoading(false)
+	}
 
 
 	return (
@@ -192,10 +218,28 @@ function GenomeLandingPage() {
 
 					<div style={{ marginTop: "70px" }}>
 						<div className='d-flex justify-content-between'>
-							<TableTitle title='Top Experiments Performed' tooltip={`Top experiments performed on ${genomeName} and the gene was activated.`} />
+							<TableTitle title='Top Experiments Performed' tooltip={`Top experiments performed on ${genomeName} and the gene was activated (score over ${TOP_EXPERIMENT_THRESHOLD}).`} />
 							<LinkToHeatMap />
 						</div>
 						<TablePaginatedExpand setSelectedRows={setSelectedExperiments} selectedRows={selectedExperiments} data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
+					</div>
+
+					<br />
+					<div className='download'>
+						<div className='d-flex justify-content-start'>
+							<TableTitle title="Download" tooltip={'downlodable data'} />
+							<CircleLoader loading={loading} size='30' />
+						</div>
+						<ul style={{ listStyleType: 'disc' }}>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopExperiments}> Experiments with genes scoring above </span>
+								<input type='number' min='-10' max='30' value={topExperimentsThreshold} onChange={e => setTopExperimentsThreshold(e.target.value)} />
+								.
+							</li>
+							<li>
+								<div style={{ cursor: 'pointer' }} onClick={handleDownloadAllTopExperiments}>All experiments.</div>
+							</li>
+						</ul>
 					</div>
 
 				</div>

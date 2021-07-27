@@ -2,12 +2,9 @@ import React, { Component } from 'react';
 import Aux from '../../../hoc/Aux';
 import Header from '../../UI/Header/Header';
 import Footer from '../../UI/Footer/Footer';
-import SideBarLayout from '../../Layouts/SideBarLayout';
-import HomePageLayout from '../../Layouts/HomeLayout';
 import Card from '../../UI/Card/Card';
-import SideBar from '../../UI/SideBar/SideBar';
 import Content from '../../../hoc/Content/Content';
-import HomePageCarousel from '../../UI/HomePageCarousel/HomePageCarousel2';
+// import HomePageCarousel from '../../UI/HomePageCarousel/HomePageCarousel2';
 
 import "./HomePage.css";
 
@@ -17,7 +14,7 @@ class HomePage extends Component {
 		return (
 			<Aux>
 				<Header title='DubSeq Browser' />
-				<HomePageCarousel />
+				{/* <HomePageCarousel /> */}
 				<div className="home-page-main-content-wrapper">
 					<Content>
 
