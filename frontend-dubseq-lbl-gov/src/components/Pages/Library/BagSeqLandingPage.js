@@ -10,6 +10,8 @@ import Content from '../../../hoc/Content/Content';
 import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
+import CircleLoader from "react-spinners/CircleLoader";
+import { downloadObjectAsCSV } from '../../../helper/helperFunctions';
 
 function BagSeqLandingPage() {
 
@@ -18,6 +20,8 @@ function BagSeqLandingPage() {
 	const [experiments, setExperients] = useState([]);
 	const [topPerformingGenes, setTopPerformingGenes] = useState([]);
 	const [histData, setHistData] = useState(null);
+	const [loading, setLoading] = useState(false)
+	const [topExperimentsThreshold, setTopExperimentsThreshold] = useState(4)
 
 	useEffect(() => {
 
@@ -26,7 +30,10 @@ function BagSeqLandingPage() {
 			let res1 = await axios.post('/v2/api/query/16', { 'library_id': parseInt(id) })
 			setStats(res1.data);
 			// let res2 = await axios.get(`/api/libraries/${id}/experiments`);
-			let res2 = await axios.post('/v2/api/query/17', { 'library_id': parseInt(id) })
+			let res2 = await axios.post('/v2/api/query/17', {
+				'library_id': parseInt(id),
+				'score_threshold': 4
+			})
 			res2.data = addLink(res2.data, 'itnum', ['experiment_id'], '/bagseq/libraries/${id}/experiments/${id_experiment}')
 			setExperients(res2.data);
 
@@ -150,6 +157,37 @@ function BagSeqLandingPage() {
 		)
 	}
 
+	async function handleDownloadExperimentHighScoringGenes() {
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/17', {
+			'library_id': parseInt(id),
+			'score_threshold': parseInt(topExperimentsThreshold)
+		})
+		downloadObjectAsCSV(res.data, `top_experiments_gene_score_threshold(${topExperimentsThreshold})`)
+		setLoading(false)
+	}
+
+	async function handleDownloadAllExperimentHighScoringGenes() {
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/17', {
+			'library_id': parseInt(id),
+			'score_threshold': -10000
+		})
+		downloadObjectAsCSV(res.data, `all_experiments_gene_score_threshold(${topExperimentsThreshold})`)
+		setLoading(false)
+	}
+
+	async function handleDownloadTopPerformingGenes() {
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/13', { 'library_id': parseInt(id) })
+		res.data = res.data.map(row => {
+			delete row['gene_id']
+			return row
+		})
+		downloadObjectAsCSV(res.data, 'topPerformingGenesAndExperiments')
+		setLoading(false)
+	}
+
 
 	return (
 		<Aux>
@@ -164,9 +202,28 @@ function BagSeqLandingPage() {
 					<TableTitle title='Experiments high scoring genes' tooltip='genes scored above 4.' />
 					<TableReactPaginated data={experiments} keyField='experiment id' columns={ExperimentLabels} />
 					<br />
-					<TableTitle title='Top Performing Genes' tooltip='Genes that perform best in this experiment.' />
+					<TableTitle title='Top Performing Genes' tooltip='Best scoring Genes in this library and the experiment in which the gene scored highest.' />
 					<TablePaginatedExpand data={topPerformingGenes} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRow} />
 					<br />
+					<div className='download'>
+						<div className='d-flex justify-content-start'>
+							<TableTitle title="Download" tooltip={'downlodable data'} />
+							<CircleLoader loading={loading} size={30} />
+						</div>
+						<ul style={{ listStyleType: 'disc' }}>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadExperimentHighScoringGenes}>Experiments high scoring genes </span>
+								<input type='number' min='-10' max='30' value={topExperimentsThreshold} onChange={e => setTopExperimentsThreshold(e.target.value)} />
+								.
+							</li>
+							<li>
+								<div style={{ cursor: 'pointer' }} onClick={handleDownloadAllExperimentHighScoringGenes}>All experiments high scoring genes.</div>
+							</li>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopPerformingGenes}>Top performing genes.</span>
+							</li>
+						</ul>
+					</div>
 				</div>
 			</Content>
 			<Footer />

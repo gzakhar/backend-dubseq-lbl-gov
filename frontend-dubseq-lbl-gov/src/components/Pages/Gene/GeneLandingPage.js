@@ -10,7 +10,8 @@ import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
-import { roundTo, addUID } from '../../../helper/helperFunctions';
+import { roundTo, addUID, downloadObjectAsCSV } from '../../../helper/helperFunctions';
+import CircleLoader from "react-spinners/CircleLoader";
 
 function GeneLandingPage() {
 
@@ -19,6 +20,9 @@ function GeneLandingPage() {
 	const [stats, setStats] = useState(null)
 	const [experiments, setExperiments] = useState([])
 	const [fragmenExperiments, setFragmentExperiments] = useState([])
+	const [topExperimentsThreshold, setTopExperimentsThreshold] = useState(4)
+	const [topFragmentsThreshold, setTopFragmentsThreshold] = useState(4)
+	const [loading, setLoading] = useState(false)
 
 
 	useEffect(() => {
@@ -38,7 +42,7 @@ function GeneLandingPage() {
 			setExperiments(res2)
 
 			// let res3 = await axios(`/api/getGeneFragmentsExperiments/${id}`)
-			let res3 = await axios.post('/v2/api/query/20', { "gene_id": parseInt(id) })
+			let res3 = await axios.post('/v2/api/query/20', { "gene_id": parseInt(id), 'fragment_score': -1000 })
 			res3 = addLink(res3.data, 'name', ['barseq_experiment_id'], '/bagseq/libraries/1/experiments/?')
 			res3 = res3.map(row => ({ ...row, 'score': roundTo(row['score'], 4) }))
 			res3 = addUID(res3)
@@ -184,6 +188,22 @@ function GeneLandingPage() {
 		)
 	}
 
+	async function handleDownloadTopExperiments() {
+
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/21', { "gene_id": parseInt(id) })
+		downloadObjectAsCSV(res.data, 'topExperiments')
+		setLoading(false)
+	}
+
+	async function handleDownloadFragments() {
+
+		setLoading(true)
+		let res = await axios.post('/v2/api/query/20', { "gene_id": parseInt(id), 'fragment_score': topFragmentsThreshold == '' ? -100000 : parseInt(topFragmentsThreshold) })
+		downloadObjectAsCSV(res.data, `topFragments_threshold(${topFragmentsThreshold == '' ? 'none' : topFragmentsThreshold})`)
+		setLoading(false)
+	}
+
 
 	return (
 		<Aux>
@@ -198,6 +218,23 @@ function GeneLandingPage() {
 					<br />
 					<TableTitle title='Fragment Experiments' tooltip='Fragments that covered this gene and their top scores.' />
 					<TableReactPaginated data={fragmenExperiments} keyField="uid" columns={FragmentExperiments} />
+					<br />
+					<div className='download'>
+						<div className='d-flex justify-content-start'>
+							<TableTitle title="Download" tooltip={'downlodable data'} />
+							<CircleLoader loading={loading} size='30' />
+						</div>
+						<ul style={{ listStyleType: 'disc' }}>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopExperiments}> Top Experiments.</span>
+							</li>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadFragments}> Top Fragments </span>
+								<input type='number' min='-10' max='30' value={topFragmentsThreshold} onChange={e => setTopFragmentsThreshold(e.target.value)} />
+								(leave blank for WHOLE data-set).
+							</li>
+						</ul>
+					</div>
 					<br />
 				</div>
 			</Content>

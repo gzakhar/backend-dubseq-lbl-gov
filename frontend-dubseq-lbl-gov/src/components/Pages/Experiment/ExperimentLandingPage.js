@@ -9,7 +9,8 @@ import Footer from '../../UI/Footer/Footer';
 import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
-import { roundTo } from '../../../helper/helperFunctions';
+import { downloadObjectAsCSV, roundTo } from '../../../helper/helperFunctions';
+import CircleLoader from "react-spinners/CircleLoader";
 
 
 function ExperiemntLandingPage() {
@@ -18,6 +19,8 @@ function ExperiemntLandingPage() {
 	const [stats, setStats] = useState(null);
 	const [genes, setGenes] = useState([]);
 	const [fragments, setFragments] = useState([]);
+	const [loading, setLoading] = useState(false)
+	const [topGenesThreshold, setTopGenesThreshold] = useState(20)
 
 	useEffect(() => {
 		async function fetchData() {
@@ -26,7 +29,7 @@ function ExperiemntLandingPage() {
 			setStats(res1.data);
 
 			// let res2 = await axios(`/libraries/${id}/experiments/${id_experiment}/genes`);
-			let res2 = await axios.post('/v2/api/query/11', { "library_id": parseInt(id), "experiment_id": parseInt(id_experiment) })
+			let res2 = await axios.post('/v2/api/query/11', { "library_id": parseInt(id), "experiment_id": parseInt(id_experiment), 'limit': 20 })
 			res2 = addLink(res2.data, 'gene_name', ['gene_id'], '/genes/?')
 			res2 = res2.map(row => ({ ...row, 'score': roundTo(row['score'], 4) }))
 			setGenes(res2);
@@ -132,6 +135,17 @@ function ExperiemntLandingPage() {
 		)
 	}
 
+	async function handleDownloadTopGenes() {
+
+		setLoading(true)
+
+		let res = await axios.post('/v2/api/query/11', { "library_id": parseInt(id), "experiment_id": parseInt(id_experiment), 'limit': topGenesThreshold == '' ? null : parseInt(topGenesThreshold) })
+		downloadObjectAsCSV(res.data, `topGenes_threshold(${topGenesThreshold})`)
+		setLoading(false)
+	}
+
+
+
 	return (
 		<Aux>
 			<Header title='Experiment LandingPage' />
@@ -140,11 +154,26 @@ function ExperiemntLandingPage() {
 					{stats && <PageTitle title='Experiment' specific={stats[0]['name']} />}
 					{stats && <TableHorizontal content={stats} labels={StatsLabels} title="General Information" />}
 					<br />
-					
+
 					<TableTitle title='Top gene scores' tooltip='Top scoring genes in this experiment.' />
 					<TablePaginatedExpand data={genes} keyField={'gene_id'} columns={topScoringGensLabels} expandRowFunction={expandRowFunction} />
 					<br />
 					{/* {fragments && <TableReact content={fragments} keyField='fragment id' labels={topScoringFragments} title="Top Scoring Fragments" />} */}
+
+					<div className='download'>
+						<div className='d-flex justify-content-start'>
+							<TableTitle title="Download" tooltip={'downlodable data'} />
+							<CircleLoader loading={loading} size='30' />
+						</div>
+						<ul style={{ listStyleType: 'disc' }}>
+							<li>
+								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopGenes}> Top Genes limit </span>
+								<input type='number' min='-10' max='30' value={topGenesThreshold} onChange={e => setTopGenesThreshold(e.target.value)} />
+								(leave blank for WHOLE data-set).
+							</li>
+						</ul>
+					</div>
+					<br />
 				</div>
 			</Content>
 			<Footer />

@@ -223,7 +223,6 @@ function GenomeLandingPage() {
 						</div>
 						<TablePaginatedExpand setSelectedRows={setSelectedExperiments} selectedRows={selectedExperiments} data={experiments} keyField='uid' columns={TopPerformingLabels} expandRowFunction={expandRowFunction} />
 					</div>
-
 					<br />
 					<div className='download'>
 						<div className='d-flex justify-content-start'>
@@ -241,7 +240,6 @@ function GenomeLandingPage() {
 							</li>
 						</ul>
 					</div>
-
 				</div>
 			</Content>
 			<Footer />

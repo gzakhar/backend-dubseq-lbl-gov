@@ -15,10 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -44,7 +41,9 @@ public class ControllerV2 {
 
         if (body != null)
             for (Map.Entry<String, Object> entry : body.entrySet())
-                System.out.println("Key: " + entry.getKey() + "\nValue: " + entry.getValue().toString());
+                System.out.println("Key: " + entry.getKey() +
+                        "\nValue: " +
+                        (Objects.isNull(entry.getValue()) ? "Null" : entry.getValue().toString()));
 
 
         return jdbcTemplate.queryForList(QUERY, body);
