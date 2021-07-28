@@ -79,7 +79,6 @@ function FitnessGraph() {
 		if (experiments.length == 0) return
 
 		try {
-			// let res = await axios(`/api/organisms/${selectedOrganism}/${selectedExperiment}/genes/${start.toLowerCase()}`)
 			let res = await axios.post(`/v2/api/query/25`, {
 				'genome_id': selectedOrganism,
 				'gene_name': start

@@ -21,8 +21,9 @@ function GenomeList() {
 		async function fetchData() {
 			// https://docs.google.com/spreadsheets/d/1OJNuSJz9_057EFYK5IbSUbV0dIMaY7Po3cnTlkhTdq4/edit#gid=0
 			let res = await axios.post('v2/api/query/0')
+			console.log(res.data)
 			res.data = res.data.map(e => {
-				e['link'] = <Link to={`/organisms/${e.genome_id}`}>See More</Link>;
+				e['name'] = <Link to={`/organisms/${e.genome_id}`}>{e['name']}</Link>;
 				e['ncbi_taxonomy_id'] =
 					<a
 						href={`${NCBI_TAXONOMY_ID_BROWSER}${e.ncbi_taxonomy_id}`}
@@ -72,10 +73,6 @@ function GenomeList() {
 		}, {
 			dataField: 'experiment_count',
 			text: 'Experiment count',
-			sort: true
-		}, {
-			dataField: 'link',
-			text: 'Link',
 			sort: true
 		}
 	]
