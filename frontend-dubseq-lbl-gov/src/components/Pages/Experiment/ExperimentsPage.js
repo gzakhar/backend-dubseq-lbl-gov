@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../UI/Header/Header';
 import Aux from '../../../hoc/Aux';
 import axios from 'axios';
-import SearchBox from '../Search/SearchBox';
-import HorizontalLayout from '../../Layouts/HorizontalLayout';
-import { useLocation, useHistory } from 'react-router-dom';
 import Content from '../../../hoc/Content/Content';
 import Footer from '../../UI/Footer/Footer';
 import { Link } from 'react-router-dom'
-// import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 import TableReactPaginated from '../../UI/Table/TablePaginatedExpand';
 import { TableTitle } from '../../UI/Titles/Title';
 
@@ -92,9 +88,9 @@ function ExperimentsPage() {
 		useEffect(() => {
 
 			let fetchData = async () => {
-				let res = await axios('organisms/condition/',
-					{ params: { condition: props.condition } })
-
+				let res = await axios.post('/v2/api/query/27',
+					{ 'condition_name': props.condition }
+				)
 				console.log(res.data)
 				setLibs(res.data)
 			}
@@ -107,8 +103,10 @@ function ExperimentsPage() {
 			libs.length !== 0 ? (
 				<div style={{ minHeight: '100px' }}>
 					<div>
-						Other libraries with {<span style={{ fontWeight: '600' }}>{props.row['condition_name'].props.children}</span>},
-						are {libs.map(lib => <Link to={`organisms/${lib['bagseq_library_id']}`}>{lib['name']}, </Link>)}
+						Libraries with {<span style={{ fontWeight: '600' }}>{props.row['condition_name'].props.children}.</span>}
+						<ul>
+							{libs.map(lib => <li><Link to={`organisms/${lib['bagseq_library_id']}`}>{lib['name']}</Link></li>)}
+						</ul>
 					</div>
 				</div>)
 				: <div>Loading</div>
@@ -136,7 +134,7 @@ function ExperimentsPage() {
 			<Header title="TablePage" />
 			<Content>
 				<div className='container' style={{ paddingBottom: "40px" }}>
-					<TableTitle title='Experiments' tooltip='Experiments loaded into DubSeq Browser.'/>
+					<TableTitle title='Experiments' tooltip='Experiments loaded into DubSeq Browser.' />
 					<TableReactPaginated data={experiments} keyField={'index'} columns={labels} expandRowFunction={expandRowFunction} />
 				</div>
 			</Content>

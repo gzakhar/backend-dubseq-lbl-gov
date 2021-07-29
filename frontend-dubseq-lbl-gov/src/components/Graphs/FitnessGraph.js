@@ -8,6 +8,8 @@ import { useLocation } from 'react-router-dom';
 import downloadSvg from 'svg-crowbar';
 import { downloadObjectAsCSV, downloadObjectAsJSON } from '../../helper/helperFunctions';
 
+import '../UI/List/List.css'
+
 const range = 10000;
 const zoom = 0.2
 
@@ -54,7 +56,6 @@ function FitnessGraph() {
 	// Getting organisms.
 	useEffect(() => {
 		const fetchOrganisms = async () => {
-			// let res = await axios('organisms', { baseURL: '/' })
 			let res = await axios.post('/v2/api/query/0')
 			setOrganisms(res.data)
 		}
@@ -64,7 +65,6 @@ function FitnessGraph() {
 	// Getting extepriments.
 	useEffect(() => {
 		const fetchExperiment = async () => {
-			// let res = await axios(`organisms/${selectedOrganism}/experiments`, { baseURL: '/' })
 			let res = await axios.post('/v2/api/query/3', { 'genome_id': selectedOrganism })
 			setExperiments(res.data)
 		}
@@ -124,7 +124,7 @@ function FitnessGraph() {
 				e['posTo'] = e['pos_to']
 				return e
 			});
-
+			console.log(data)
 			setData(data);
 		}
 
@@ -153,8 +153,8 @@ function FitnessGraph() {
 			'frag_start': parseInt(position.start),
 			'frag_stop': parseInt(position.end)
 		})
-		let libraryName = res.data.shift()['name']
-		let experimentId = res.data.shift()['itnum']
+		let libraryName = res.data[0]['name']
+		let experimentId = res.data[0]['itnum']
 		downloadObjectAsCSV(res.data, `lib(${libraryName})_experiment(${experimentId})_fragments(${position.start} - ${position.end})`)
 	}
 
@@ -165,8 +165,8 @@ function FitnessGraph() {
 			'frag_start': parseInt(position.start),
 			'frag_stop': parseInt(position.end)
 		})
-		let libraryName = res.data.shift()['name']
-		let experimentId = res.data.shift()['itnum']
+		let libraryName = res.data[0]['name']
+		let experimentId = res.data[0]['itnum']
 		downloadObjectAsJSON(res.data, `lib(${libraryName})_experiment(${experimentId})_fragments(${position.start} - ${position.end})`)
 	}
 
@@ -225,6 +225,14 @@ function FitnessGraph() {
 
 			</div>
 			<div id='fitness' style={{ backgroundColor: '#eeeeee', width: '100%', borderRadius: '10px', padding: '5px' }}>
+				{/* {data.length != 0 && <FitnessLandscapeD3
+					xAxisLable="Position along the genome (bp)"
+					yAxisLable="Fragment Fitness Score"
+					data={data}
+					current={data.geneData ? data.geneData.filter(gene => (gene.gene_id == currentGeneId.current)).shift() : {}}
+					handleClickGene={changeCurrent}
+					reference={svgElement}
+				/>} */}
 				<FitnessLandscapeD3
 					xAxisLable="Position along the genome (bp)"
 					yAxisLable="Fragment Fitness Score"
@@ -237,14 +245,14 @@ function FitnessGraph() {
 			<br />
 			<div className='download'>
 				<h2>Downloads</h2>
-				<ul style={{ listStyleType: 'disc' }}>
-					<li><div style={{ cursor: 'pointer' }} onClick={() => {
-						downloadSvg(svgElement.current, 'geneExperimentGenome.svg');
+				<ul>
+					<li><div onClick={() => {
+						downloadSvg(svgElement.current, 'geneExperimentGenome');
 					}}>download picture (SVG)</div></li>
-					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+					<li><div onClick={() => {
 						handleClickDownloadFragmentsCSV()
 					}}>download fragments (CSV)</div></li>
-					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+					<li><div onClick={() => {
 						handleClickDownloadFragmentsJSON()
 					}}>download fragments (JSON)</div></li>
 				</ul>

@@ -12,6 +12,7 @@ import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import TableReactPaginated from '../../UI/Table/TableReactPaginated';
 import CircleLoader from "react-spinners/CircleLoader";
 import { downloadObjectAsCSV } from '../../../helper/helperFunctions';
+import '../../UI/List/List.css'
 
 function BagSeqLandingPage() {
 
@@ -210,17 +211,17 @@ function BagSeqLandingPage() {
 							<TableTitle title="Download" tooltip={'downlodable data'} />
 							<CircleLoader loading={loading} size={30} />
 						</div>
-						<ul style={{ listStyleType: 'disc' }}>
+						<ul>
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadExperimentHighScoringGenes}>Experiments high scoring genes </span>
+								<span onClick={handleDownloadExperimentHighScoringGenes}>Experiments high scoring genes </span>
 								<input type='number' min='-10' max='30' value={topExperimentsThreshold} onChange={e => setTopExperimentsThreshold(e.target.value)} />
 								.
 							</li>
 							<li>
-								<div style={{ cursor: 'pointer' }} onClick={handleDownloadAllExperimentHighScoringGenes}>All experiments high scoring genes.</div>
+								<div onClick={handleDownloadAllExperimentHighScoringGenes}>All experiments high scoring genes.</div>
 							</li>
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopPerformingGenes}>Top performing genes.</span>
+								<span onClick={handleDownloadTopPerformingGenes}>Top performing genes.</span>
 							</li>
 						</ul>
 					</div>

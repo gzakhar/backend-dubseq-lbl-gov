@@ -1,0 +1,17 @@
+.download ul {
+	list-style-type: disc;
+}
+
+.download li div {
+	cursor: pointer;
+	color: black;
+}
+
+.download li span {
+	cursor: pointer;
+	color: black;
+}
+
+.download li :hover {
+	color: #007bff;
+} 

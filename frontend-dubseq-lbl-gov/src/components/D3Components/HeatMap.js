@@ -3,9 +3,12 @@ import Select from 'react-select';
 import AsyncSelect from 'react-select/async';
 import Chart from "react-apexcharts";
 import axios from 'axios';
-import { color } from 'd3';
 import { useLocation } from 'react-router-dom';
+import { TableTitle } from '../UI/Titles/Title';
 import { downloadObjectAsCSV, downloadObjectAsJSON } from '../../helper/helperFunctions';
+import CircleLoader from "react-spinners/CircleLoader";
+
+import '../UI/List/List.css'
 
 
 function HeatMap() {
@@ -16,6 +19,7 @@ function HeatMap() {
 	const [experiments, setExperiments] = useState([])
 	const [selectedExperiments, setSelectedExperiment] = useState([])
 	const [selectedGenes, setSelectedGenes] = useState([])
+	const [loading, setLoading] = useState(false)
 	let location = useLocation();
 
 	async function fetchHeatMapData() {
@@ -99,6 +103,7 @@ function HeatMap() {
 
 	async function handleDownladHeatMapCSV() {
 
+		setLoading(true)
 		let genes = data[0]['data'].map(d => d['x'])
 
 		let downloadData = data.map(row => (
@@ -117,11 +122,14 @@ function HeatMap() {
 		))
 
 		downloadObjectAsCSV(downloadData, 'heatMapData')
+		setLoading(false)
 	}
 
 	async function handleDownladHeatMapJSON() {
+		setLoading(true)
 		let downloadData = data.map(row => ({ 'y': row['name'], 'x': row['data'].map(gene => ({ [gene['x']]: gene['y'] })) }))
 		downloadObjectAsJSON(downloadData, 'heatMapData')
+		setLoading(false)
 	}
 
 	return (
@@ -174,14 +182,17 @@ function HeatMap() {
 			/>
 			<br />
 			<div className='download'>
-				<h2>Downloads</h2>
-				<ul style={{ listStyleType: 'disc' }}>
-					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+				<div className='d-flex justify-content-start'>
+					<TableTitle title="Download" tooltip={'downlodable data'} />
+					<CircleLoader loading={loading} size='30' />
+				</div>
+				<ul >
+					<li><div onClick={() => {
 						handleDownladHeatMapCSV()
-					}}>download fragments (CSV)</div></li>
-					<li><div style={{ cursor: 'pointer' }} onClick={() => {
+					}}>download fragments (CSV).</div></li>
+					<li><div onClick={() => {
 						handleDownladHeatMapJSON()
-					}}>download fragments (JSON)</div></li>
+					}}>download fragments (JSON).</div></li>
 				</ul>
 			</div>
 		</div>

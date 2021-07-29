@@ -14,33 +14,33 @@ let innerRadius = width / 3;
 let outerRadius = width / 2 - margin;
 
 function wrap(text) {
-    text.each(function() {
-        var text = select(this);
-        var words = text.text().split(/\s+/).reverse();
-        var lineHeight = 30;
-        var width = parseFloat(text.attr('width'));
-        var y = parseFloat(text.attr('y'));
-        var x = text.attr('x');
-        var anchor = text.attr('text-anchor');
-    
-        var tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('text-anchor', anchor);
-        var lineNumber = 0;
-        var line = [];
-        var word = words.pop();
+	text.each(function () {
+		var text = select(this);
+		var words = text.text().split(/\s+/).reverse();
+		var lineHeight = 30;
+		var width = parseFloat(text.attr('width'));
+		var y = parseFloat(text.attr('y'));
+		var x = text.attr('x');
+		var anchor = text.attr('text-anchor');
 
-        while (word) {
-            line.push(word);
-            tspan.text(line.join(' '));
-            if (tspan.node().getComputedTextLength() > width) {
-                lineNumber += 1;
-                line.pop();
-                tspan.text(line.join(' '));
-                line = [word];
-                tspan = text.append('tspan').attr('x', x).attr('y', y + lineNumber * lineHeight).attr('anchor', anchor).text(word);
-            }
-            word = words.pop();
-        }
-    });
+		var tspan = text.text(null).append('tspan').attr('x', x).attr('y', y).attr('text-anchor', anchor);
+		var lineNumber = 0;
+		var line = [];
+		var word = words.pop();
+
+		while (word) {
+			line.push(word);
+			tspan.text(line.join(' '));
+			if (tspan.node().getComputedTextLength() > width) {
+				lineNumber += 1;
+				line.pop();
+				tspan.text(line.join(' '));
+				line = [word];
+				tspan = text.append('tspan').attr('x', x).attr('y', y + lineNumber * lineHeight).attr('anchor', anchor).text(word);
+			}
+			word = words.pop();
+		}
+	});
 }
 
 function GenomeRadialD3(props) {
@@ -61,8 +61,7 @@ function GenomeRadialD3(props) {
 	function initialize() {
 
 		let svg = select('.canvas')
-			.append('svg')
-			.attr("viewBox", [-width / 2, -height / 2, width, height])
+			// .attr("viewBox", [-width / 2, -height / 2, width, height])
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-linecap", "round");
 
@@ -93,7 +92,7 @@ function GenomeRadialD3(props) {
 			.attr('text-anchor', 'middle')
 			.attr('class', 'title')
 			.text(props.title)
-		
+
 		selectAll('.title').call(wrap)
 
 		// title.append('text').text('Escherichia coli');
@@ -105,14 +104,14 @@ function GenomeRadialD3(props) {
 
 	function updateGraph() {
 
-		let svg = select('.canvas').select('svg');
+		let svg = select('.canvas');
 
 		let xScale = scaleLinear()
-			.domain([min(props.content, d => d.position), max(props.content, d => d.position) - 1])
+			.domain([min(props.content, d => d.x), max(props.content, d => d.x) - 1])
 			.range([0, 2 * Math.PI]);
 
 		let yScale = scaleLinear()
-			.domain([min(props.content, d => d.count), max(props.content, d => d.count)])
+			.domain([min(props.content, d => d.y), max(props.content, d => d.y)])
 			.range([innerRadius, outerRadius]);
 
 		let xAxis = (g) => g
@@ -181,8 +180,8 @@ function GenomeRadialD3(props) {
 
 		let line = lineRadial()
 			.curve(curveLinearClosed)
-			.angle(d => xScale(d.position))
-			.radius(d => yScale(d.count));
+			.angle(d => xScale(d.x))
+			.radius(d => yScale(d.y));
 
 
 		svg.append("path")
@@ -195,7 +194,7 @@ function GenomeRadialD3(props) {
 
 	return (
 		<Aux>
-			<div className='canvas' />
+			<svg ref={props.reference} className='canvas' viewBox={`${-width / 2} ${-height / 2} ${width} ${height}`} />
 		</Aux>
 	)
 }

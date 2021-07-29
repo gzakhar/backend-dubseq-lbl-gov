@@ -13,6 +13,8 @@ import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import { roundTo, addUID, downloadObjectAsCSV } from '../../../helper/helperFunctions';
 import CircleLoader from "react-spinners/CircleLoader";
 
+import '../../UI/List/List.css'
+
 function GeneLandingPage() {
 
 	const { id } = useParams()
@@ -224,12 +226,12 @@ function GeneLandingPage() {
 							<TableTitle title="Download" tooltip={'downlodable data'} />
 							<CircleLoader loading={loading} size='30' />
 						</div>
-						<ul style={{ listStyleType: 'disc' }}>
+						<ul>
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopExperiments}> Top Experiments.</span>
+								<span onClick={handleDownloadTopExperiments}> Top Experiments.</span>
 							</li>
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadFragments}> Top Fragments </span>
+								<span onClick={handleDownloadFragments}> Top Fragments </span>
 								<input type='number' min='-10' max='30' value={topFragmentsThreshold} onChange={e => setTopFragmentsThreshold(e.target.value)} />
 								(leave blank for WHOLE data-set).
 							</li>

@@ -12,6 +12,7 @@ import TablePaginatedExpand from '../../UI/Table/TablePaginatedExpand';
 import { downloadObjectAsCSV, roundTo } from '../../../helper/helperFunctions';
 import CircleLoader from "react-spinners/CircleLoader";
 
+import '../../UI/List/List.css'
 
 function ExperiemntLandingPage() {
 
@@ -165,9 +166,9 @@ function ExperiemntLandingPage() {
 							<TableTitle title="Download" tooltip={'downlodable data'} />
 							<CircleLoader loading={loading} size='30' />
 						</div>
-						<ul style={{ listStyleType: 'disc' }}>
+						<ul>
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopGenes}> Top Genes limit </span>
+								<span onClick={handleDownloadTopGenes}> Top Genes limit </span>
 								<input type='number' min='-10' max='30' value={topGenesThreshold} onChange={e => setTopGenesThreshold(e.target.value)} />
 								(leave blank for WHOLE data-set).
 							</li>

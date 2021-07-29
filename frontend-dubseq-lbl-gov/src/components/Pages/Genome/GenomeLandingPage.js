@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import Aux from '../../../hoc/Aux';
 import Header from '../../UI/Header/Header';
 import Footer from '../../UI/Footer/Footer';
 import axios from 'axios';
-import RadialGraph from '../../Graphs/RadialGraph';
 import TableHorizontal from '../../UI/Table/TableHorizontal';
 import HorizontalLayout from '../../Layouts/HorizontalLayout';
 import Content from '../../../hoc/Content/Content';
@@ -12,8 +11,12 @@ import { Link } from 'react-router-dom';
 import { PageTitle, TableTitle } from '../../UI/Titles/Title';
 import TableReact from '../../UI/Table/TableReact';
 import TablePaginatedExpand from '../../UI/Table/TableReactPES';
+import GenomeRadialD3 from '../../D3Components/GenomeRadialD3';
 import { addUID, downloadObjectAsCSV, roundTo } from '../../../helper/helperFunctions';
 import CircleLoader from "react-spinners/CircleLoader";
+import downloadSvg from 'svg-crowbar';
+
+import '../../UI/List/List.css'
 
 const TOP_EXPERIMENT_THRESHOLD = 4
 
@@ -25,7 +28,9 @@ function GenomeLandingPage() {
 	const [experiments, setExperients] = useState([]);
 	const [selectedExperiments, setSelectedExperiments] = useState([]);
 	const [topExperimentsThreshold, setTopExperimentsThreshold] = useState(4);
+	const [circosData, setCircosData] = useState([])
 	const [loading, setLoading] = useState(false)
+	const svgElement = useRef(null)
 
 	useEffect(() => {
 
@@ -49,6 +54,13 @@ function GenomeLandingPage() {
 			res3.data = addUID(res3.data)
 			res3.data = res3.data.map(row => ({ ...row, 'max_gene_score': roundTo(row['max_gene_score'], 4) }))
 			setExperients(res3.data);
+
+			let res4 = await axios.post('/v2/api/query/29', {
+				'window': 10000,
+				'genome_id': parseInt(id)
+			})
+			res4.data = res4.data.map(row => ({ x: row['position'], y: row['fragment_count'] }))
+			setCircosData(res4.data);
 		}
 
 		fetchData();
@@ -200,6 +212,11 @@ function GenomeLandingPage() {
 		setLoading(false)
 	}
 
+	function handleDownloadCircosGraph () {
+		setLoading(true)
+		downloadSvg(svgElement.current, `circosFragmentCoverage_${genomeName}`);
+		setLoading(false)
+	}
 
 	return (
 		<Aux>
@@ -209,7 +226,10 @@ function GenomeLandingPage() {
 					{stats && <PageTitle title={'Organism'} specific={genomeName} />}
 					{stats && <HorizontalLayout content={[
 						<TableHorizontal content={stats} labels={StatsLabels} title='General Information' />,
-						<RadialGraph />
+						<GenomeRadialD3
+							content={circosData}
+							title={genomeName.replaceAll('-', ' ')}
+							reference={svgElement} />
 					]} contentWidth={[6, 6]} />}
 					<div style={{ marginTop: "50px" }}>
 						<TableTitle title='Libraries Created' tooltip={`List of libraries created with ${genomeName}`} />
@@ -229,14 +249,17 @@ function GenomeLandingPage() {
 							<TableTitle title="Download" tooltip={'downlodable data'} />
 							<CircleLoader loading={loading} size='30' />
 						</div>
-						<ul style={{ listStyleType: 'disc' }}>
+						<ul >
 							<li>
-								<span style={{ cursor: 'pointer' }} onClick={handleDownloadTopExperiments}> Experiments with genes scoring above </span>
+								<span onClick={handleDownloadTopExperiments}> Experiments with genes scoring above </span>
 								<input type='number' min='-10' max='30' value={topExperimentsThreshold} onChange={e => setTopExperimentsThreshold(e.target.value)} />
 								.
 							</li>
 							<li>
-								<div style={{ cursor: 'pointer' }} onClick={handleDownloadAllTopExperiments}>All experiments.</div>
+								<div onClick={handleDownloadAllTopExperiments}>All experiments.</div>
+							</li>
+							<li>
+								<div onClick={handleDownloadCircosGraph}>Circos Graph (SVG).</div>
 							</li>
 						</ul>
 					</div>
