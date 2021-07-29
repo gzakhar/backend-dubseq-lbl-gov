@@ -225,19 +225,11 @@ function FitnessGraph() {
 
 			</div>
 			<div id='fitness' style={{ backgroundColor: '#eeeeee', width: '100%', borderRadius: '10px', padding: '5px' }}>
-				{/* {data.length != 0 && <FitnessLandscapeD3
-					xAxisLable="Position along the genome (bp)"
-					yAxisLable="Fragment Fitness Score"
-					data={data}
-					current={data.geneData ? data.geneData.filter(gene => (gene.gene_id == currentGeneId.current)).shift() : {}}
-					handleClickGene={changeCurrent}
-					reference={svgElement}
-				/>} */}
 				<FitnessLandscapeD3
 					xAxisLable="Position along the genome (bp)"
 					yAxisLable="Fragment Fitness Score"
 					data={data}
-					current={data.geneData ? data.geneData.filter(gene => (gene.gene_id == currentGeneId.current)).shift() : {}}
+					current={data.geneData ? data.geneData.filter(gene => (gene.gene_id == currentGeneId.current))[0] : {}}
 					handleClickGene={changeCurrent}
 					reference={svgElement}
 				/>

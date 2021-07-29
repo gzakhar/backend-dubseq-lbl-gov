@@ -283,10 +283,13 @@ function FitnessLandscapeD3(props) {
 		// 	.style('stroke', 'black')
 		// 	.style('fill', 'none')
 
-		currentGeneLabel.append('text')
-			.attr('y', 20)
-			.attr('x', 10)
-			.text(`Regression gene score ${props.current.name} = ${round(props.current.score_cnnls, 2)}`)
+		if (props.current) {
+
+			currentGeneLabel.append('text')
+				.attr('y', 20)
+				.attr('x', 10)
+				.text(`Regression gene score ${props.current.name} = ${round(props.current.score_cnnls, 2)}`)
+		}
 	}
 
 

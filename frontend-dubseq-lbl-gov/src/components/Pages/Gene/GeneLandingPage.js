@@ -18,7 +18,6 @@ import '../../UI/List/List.css'
 function GeneLandingPage() {
 
 	const { id } = useParams()
-	const [genes, setGenes] = useState([])
 	const [stats, setStats] = useState(null)
 	const [experiments, setExperiments] = useState([])
 	const [fragmenExperiments, setFragmentExperiments] = useState([])
@@ -99,7 +98,7 @@ function GeneLandingPage() {
 		{
 			dataField: 'fragment_coverage',
 			text: 'Fragment Coverage'
-		},
+		}
 	]
 
 	let ExperimentLabels = [
@@ -177,7 +176,7 @@ function GeneLandingPage() {
 	]
 
 	let expandRowFunction = (row, row_ind) => {
-		let genome_id = row['bagseq_library_id']
+		let genome_id = stats[0]['genome_id']
 		let experiment_id = row['barseq_experiment_id']
 		let gene_id = stats[0]['gene_id']
 		return (
